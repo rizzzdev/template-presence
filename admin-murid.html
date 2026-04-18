@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Data Murid</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .admin-badge { display:inline-flex;align-items:center;gap:5px;background:rgba(232,64,64,0.1);border:0.5px solid rgba(232,64,64,0.25);color:#e84040;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600; }
+  .action-btn { width:28px;height:28px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;border:0.5px solid var(--border-md);cursor:pointer;background:rgba(255,255,255,0.05);color:var(--text-3);font-size:12px;transition:background 0.15s,color 0.15s; }
+  .action-btn.edit:hover { background:var(--blue-dim);color:#4fa3e8;border-color:rgba(26,111,196,0.3); }
+  .action-btn.del:hover  { background:var(--red-dim);color:var(--red);border-color:rgba(232,64,64,0.3); }
+  .modal-wrap { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:center;justify-content:center;padding:20px; }
+  .modal-wrap.show { display:flex; }
+  .modal-inner { background:var(--navy-soft);border:0.5px solid var(--border-md);border-radius:14px;padding:24px 22px;width:100%;max-width:440px; }
+  .modal-hd  { font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:4px; }
+  .modal-sub { font-size:12px;color:var(--text-3);margin-bottom:20px; }
+  .form-row  { display:flex;gap:10px; }
+  .form-row .form-group { flex:1; }
+  .stu-initials { width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0; }
+  .status-aktif    { background:var(--green-dim);color:var(--green); }
+  .status-pindah   { background:var(--blue-dim);color:#4fa3e8; }
+  .status-lulus    { background:var(--orange-dim);color:var(--orange); }
+  .status-dikeluarkan { background:var(--red-dim);color:var(--red); }
+</style>
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const murid = [
+  { id:1,  name:'Ahmad Rizky Pratama',  nis:'20240047', kelas:'XII IPA 1', status:'ACTIVE',     gender:'L', poin:15 },
+  { id:2,  name:'Bella Safitri',        nis:'20240002', kelas:'XII IPA 1', status:'ACTIVE',     gender:'P', poin:0  },
+  { id:3,  name:'Muhammad Rizki',       nis:'20230089', kelas:'XI IPS 1',  status:'ACTIVE',     gender:'L', poin:45 },
+  { id:4,  name:'Dewi Rahayu',          nis:'20220055', kelas:'XII IPS 2', status:'GRADUATED',  gender:'P', poin:5  },
+  { id:5,  name:'Candra Wijaya',        nis:'20240003', kelas:'X IPA 2',   status:'ACTIVE',     gender:'L', poin:10 },
+  { id:6,  name:'Siti Aminah',          nis:'20230055', kelas:'XII IPS 1', status:'ACTIVE',     gender:'P', poin:25 },
+  { id:7,  name:'Andi Prasetya',        nis:'20230112', kelas:'XII IPA 2', status:'ACTIVE',     gender:'L', poin:30 },
+  { id:8,  name:'Fadhil Akbar',         nis:'20240019', kelas:'X IPA 2',   status:'ACTIVE',     gender:'L', poin:5  },
+  { id:9,  name:'Jihan Rahayu',         nis:'20240010', kelas:'XII IPA 1', status:'MOVED',      gender:'P', poin:0  },
+  { id:10, name:'Kevin Santoso',        nis:'20240055', kelas:'XII IPA 1', status:'ACTIVE',     gender:'L', poin:5  },
+  { id:11, name:'Lestari Putri',        nis:'20240033', kelas:'X IPA 1',   status:'ACTIVE',     gender:'P', poin:5  },
+  { id:12, name:'Riko Maulana',         nis:'20240071', kelas:'XI IPS 2',  status:'EXPELLED',   gender:'L', poin:85 },
+];
+
+const statusLabel = { ACTIVE:'Aktif', MOVED:'Pindah', GRADUATED:'Lulus', EXPELLED:'Dikeluarkan' };
+const statusClass = { ACTIVE:'badge-green', MOVED:'badge-blue', GRADUATED:'badge-orange', EXPELLED:'badge-red' };
+
+const avatarColors = ['#ff8c00','#4fa3e8','#2db87a','#c47af0','#e84040','#f0c040'];
+
+function stuInitials(name) {
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function buildRows(data) {
+  return data.map((s,i) => {
+    const col = avatarColors[i % avatarColors.length];
+    const poinColor = s.poin >= 75 ? 'var(--red)' : s.poin >= 40 ? 'var(--orange)' : 'var(--text-2)';
+    return `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="stu-initials" style="background:${col}22;color:${col}">${stuInitials(s.name)}</div>
+          <div>
+            <div style="font-size:12px;font-weight:500">${s.name}</div>
+            <div style="font-size:10px;color:var(--text-3)">NIS ${s.nis}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:12px;color:var(--text-2)">${s.kelas}</td>
+      <td style="font-size:12px;color:var(--text-2)">${s.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
+      <td><span class="badge ${statusClass[s.status]}">${statusLabel[s.status]}</span></td>
+      <td><span style="font-size:12px;font-weight:600;color:${poinColor}">${s.poin}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <span class="action-btn edit" onclick="openEdit(${s.id})" title="Edit">✎</span>
+          <span class="action-btn del"  onclick="openDel('${s.name}')" title="Hapus">✕</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+const aktif = murid.filter(m=>m.status==='ACTIVE').length;
+
+document.getElementById('app').innerHTML = `
+${renderSidebar('admin-murid')}
+<div class="main">
+  ${renderTopbar('Manajemen Data Murid', 'Admin — kelola data siswa')}
+  <div class="page-content">
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <div class="admin-badge">
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zm0 8c-3.3 0-6 1.3-6 3v1h12v-1c0-1.7-2.7-3-6-3z"/></svg>
+        ADMIN
+      </div>
+      <span style="font-size:12px;color:var(--text-3)">Halaman ini hanya dapat diakses oleh Administrator</span>
+    </div>
+
+    <div class="stat-grid" style="margin-bottom:18px">
+      <div class="stat-card t-blue">
+        <div class="stat-label">Total Murid</div>
+        <div class="stat-value">${murid.length}</div>
+        <div class="stat-sub">Terdaftar</div>
+      </div>
+      <div class="stat-card t-green">
+        <div class="stat-label">Aktif</div>
+        <div class="stat-value">${aktif}</div>
+        <div class="stat-sub">Masih bersekolah</div>
+      </div>
+      <div class="stat-card t-orange">
+        <div class="stat-label">Lulus / Pindah</div>
+        <div class="stat-value">${murid.filter(m=>m.status==='GRADUATED'||m.status==='MOVED').length}</div>
+        <div class="stat-sub">Tidak aktif</div>
+      </div>
+      <div class="stat-card t-red">
+        <div class="stat-label">Dikeluarkan</div>
+        <div class="stat-value">${murid.filter(m=>m.status==='EXPELLED').length}</div>
+        <div class="stat-sub">Status expelled</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head" style="flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="panel-icon" style="background:#4fa3e8;color:#fff">◐</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-1)">Daftar Murid</div>
+            <div style="font-size:10px;color:var(--text-3)">${murid.length} siswa terdaftar</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input class="filter-select" type="text" placeholder="Cari nama / NIS..." style="min-width:180px" oninput="filterMurid(this.value)">
+          <select class="filter-select" onchange="filterKelas(this.value)">
+            <option value="">Semua Kelas</option>
+            <option>XII IPA 1</option><option>XII IPA 2</option>
+            <option>XI IPS 1</option><option>XI IPS 2</option>
+            <option>X IPA 1</option><option>X IPA 2</option>
+          </select>
+          <select class="filter-select" onchange="filterStatusMurid(this.value)">
+            <option value="">Semua Status</option>
+            <option value="ACTIVE">Aktif</option>
+            <option value="MOVED">Pindah</option>
+            <option value="GRADUATED">Lulus</option>
+            <option value="EXPELLED">Dikeluarkan</option>
+          </select>
+          <button class="btn-add" onclick="document.getElementById('addModal').classList.add('show')">+ Tambah Murid</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nama Siswa</th>
+              <th>Kelas</th>
+              <th>Jenis Kelamin</th>
+              <th>Status</th>
+              <th>Poin Pelanggaran</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="muridBody">${buildRows(murid)}</tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <span style="font-size:11px;color:var(--text-3)">${murid.length} siswa ditampilkan</span>
+        <a href="#" class="btn-export" onclick="alert('Mengekspor data murid...')">↓ Ekspor</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Tambah/Edit -->
+<div class="modal-wrap" id="addModal">
+  <div class="modal-inner">
+    <div class="modal-hd" id="modalTitle">Tambah Data Murid</div>
+    <div class="modal-sub">Isi informasi lengkap siswa</div>
+    <div class="form-group">
+      <label class="form-label">Nama Lengkap</label>
+      <input class="form-control" placeholder="Nama lengkap siswa" type="text">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">NIS</label>
+        <input class="form-control" placeholder="contoh: 20240001" type="text" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jenis Kelamin</label>
+        <select class="form-control"><option>Laki-laki</option><option>Perempuan</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Kelas</label>
+        <select class="form-control">
+          <option>XII IPA 1</option><option>XII IPA 2</option>
+          <option>XI IPS 1</option><option>XI IPS 2</option>
+          <option>X IPA 1</option><option>X IPA 2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-control">
+          <option value="ACTIVE">Aktif</option>
+          <option value="MOVED">Pindah</option>
+          <option value="GRADUATED">Lulus</option>
+          <option value="EXPELLED">Dikeluarkan</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('addModal').classList.remove('show')">Batal</button>
+      <button class="btn btn-primary" style="flex:1" onclick="alert('Data murid disimpan!');document.getElementById('addModal').classList.remove('show')">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal hapus -->
+<div class="modal-wrap" id="delModal">
+  <div class="modal-inner" style="max-width:320px;text-align:center">
+    <div style="width:44px;height:44px;background:var(--red-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e84040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </div>
+    <div class="modal-hd">Hapus Data Murid?</div>
+    <div class="modal-sub" id="delMsg">Data siswa akan dihapus dari sistem.</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('delModal').classList.remove('show')">Batal</button>
+      <button class="btn" style="flex:1;background:var(--red);color:#fff" onclick="alert('Data berhasil dihapus!');document.getElementById('delModal').classList.remove('show')">Hapus</button>
+    </div>
+  </div>
+</div>`;
+
+initSidebar();
+
+function openEdit(id) { document.getElementById('modalTitle').textContent='Edit Data Murid'; document.getElementById('addModal').classList.add('show'); }
+function openDel(name) { document.getElementById('delMsg').textContent=`Data "${name}" akan dihapus permanen.`; document.getElementById('delModal').classList.add('show'); }
+function filterMurid(q) { document.querySelectorAll('#muridBody tr').forEach(r=>{ r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none'; }); }
+function filterKelas(v) { document.querySelectorAll('#muridBody tr').forEach(r=>{ r.style.display=!v||r.textContent.includes(v)?'':'none'; }); }
+function filterStatusMurid(v) { document.querySelectorAll('#muridBody tr').forEach(r=>{ r.style.display=!v||r.innerHTML.includes('data-status="'+v+'"')||r.textContent.includes({ACTIVE:'Aktif',MOVED:'Pindah',GRADUATED:'Lulus',EXPELLED:'Dikeluarkan'}[v]||'')?'':'none'; }); }
+</script>
+</body>
+</html>

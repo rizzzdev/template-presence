@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Data Guru</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .admin-badge { display:inline-flex;align-items:center;gap:5px;background:rgba(232,64,64,0.1);border:0.5px solid rgba(232,64,64,0.25);color:#e84040;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:0.3px; }
+  .action-btn { width:28px;height:28px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;border:0.5px solid var(--border-md);cursor:pointer;background:rgba(255,255,255,0.05);color:var(--text-3);font-size:12px;text-decoration:none;transition:background 0.15s,color 0.15s; }
+  .action-btn.edit:hover { background:var(--blue-dim);color:#4fa3e8;border-color:rgba(26,111,196,0.3); }
+  .action-btn.del:hover  { background:var(--red-dim);color:var(--red);border-color:rgba(232,64,64,0.3); }
+  .modal-wrap { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:center;justify-content:center;padding:20px; }
+  .modal-wrap.show { display:flex; }
+  .modal-inner { background:var(--navy-soft);border:0.5px solid var(--border-md);border-radius:14px;padding:24px 22px;width:100%;max-width:420px; }
+  .modal-hd { font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:4px; }
+  .modal-sub { font-size:12px;color:var(--text-3);margin-bottom:20px; }
+  .form-row { display:flex;gap:10px; }
+  .form-row .form-group { flex:1; }
+  .guru-avatar { width:36px;height:36px;border-radius:50%;background:var(--blue-dim);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#4fa3e8;flex-shrink:0; }
+</style>
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const gurus = [
+  { id:1, name:'Ahmad Fauzi',      prefix:'Bpk.', suffix:'S.Pd',  picket:'Senin',  email:'ahmad.fauzi@sma1.sch.id',   mapel:'Matematika',      auth:true  },
+  { id:2, name:'Ratna Dewi',       prefix:'Ibu.', suffix:'M.Pd',  picket:'Selasa', email:'ratna.dewi@sma1.sch.id',    mapel:'Bahasa Indonesia', auth:true  },
+  { id:3, name:'Hendra Wibowo',    prefix:'Bpk.', suffix:'S.Pd',  picket:'Rabu',   email:'hendra.w@sma1.sch.id',      mapel:'IPA',             auth:true  },
+  { id:4, name:'Sari Utami',       prefix:'Ibu.', suffix:'S.Pd',  picket:'Kamis',  email:'sari.utami@sma1.sch.id',    mapel:'PKn',             auth:true  },
+  { id:5, name:'Dodik Setiawan',   prefix:'Bpk.', suffix:'S.Kom', picket:'Jumat',  email:'dodik.s@sma1.sch.id',       mapel:'TIK',             auth:false },
+  { id:6, name:'Lina Kusumawati',  prefix:'Ibu.', suffix:'M.Pd',  picket:'-',      email:'lina.k@sma1.sch.id',        mapel:'Biologi',         auth:false },
+  { id:7, name:'Bambang Sutrisno', prefix:'Bpk.', suffix:'S.Pd',  picket:'-',      email:'bambang.s@sma1.sch.id',     mapel:'Sejarah',         auth:false },
+  { id:8, name:'Dewi Permata',     prefix:'Ibu.', suffix:'M.Hum', picket:'-',      email:'dewi.p@sma1.sch.id',        mapel:'Bahasa Inggris',  auth:false },
+];
+
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function buildRows(data) {
+  return data.map(g => `
+  <tr>
+    <td>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="guru-avatar">${initials(g.name)}</div>
+        <div>
+          <div style="font-size:12px;font-weight:500">${g.prefix} ${g.name}, ${g.suffix}</div>
+          <div style="font-size:10px;color:var(--text-3)">${g.email}</div>
+        </div>
+      </div>
+    </td>
+    <td style="font-size:12px;color:var(--text-2)">${g.mapel}</td>
+    <td style="font-size:12px;color:${g.picket==='-'?'var(--text-3)':'var(--text-2)'}">${g.picket}</td>
+    <td>${g.auth ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-orange">Belum</span>'}</td>
+    <td>
+      <div style="display:flex;gap:6px">
+        <span class="action-btn edit" onclick="openEdit(${g.id})" title="Edit">✎</span>
+        <span class="action-btn del" onclick="openDel('${g.prefix} ${g.name}')" title="Hapus">✕</span>
+      </div>
+    </td>
+  </tr>`).join('');
+}
+
+document.getElementById('app').innerHTML = `
+${renderSidebar('admin-guru')}
+<div class="main">
+  ${renderTopbar('Manajemen Data Guru', 'Admin — kelola data guru')}
+  <div class="page-content">
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <div class="admin-badge">
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zm0 8c-3.3 0-6 1.3-6 3v1h12v-1c0-1.7-2.7-3-6-3z"/></svg>
+        ADMIN
+      </div>
+      <span style="font-size:12px;color:var(--text-3)">Halaman ini hanya dapat diakses oleh Administrator</span>
+    </div>
+
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px">
+      <div class="stat-card t-blue">
+        <div class="stat-label">Total Guru</div>
+        <div class="stat-value">${gurus.length}</div>
+        <div class="stat-sub">Terdaftar di sistem</div>
+      </div>
+      <div class="stat-card t-green">
+        <div class="stat-label">Akun Aktif</div>
+        <div class="stat-value">${gurus.filter(g=>g.auth).length}</div>
+        <div class="stat-sub">Dapat login</div>
+      </div>
+      <div class="stat-card t-orange">
+        <div class="stat-label">Jadwal Piket</div>
+        <div class="stat-value">${gurus.filter(g=>g.picket!=='-').length}</div>
+        <div class="stat-sub">Sudah terjadwal</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head" style="flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="panel-icon" style="background:var(--blue)">◑</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-1)">Daftar Guru</div>
+            <div style="font-size:10px;color:var(--text-3)">${gurus.length} guru terdaftar</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input class="filter-select" type="text" placeholder="Cari nama guru..." style="min-width:180px" oninput="filterGuru(this.value)">
+          <select class="filter-select" onchange="filterStatus(this.value)">
+            <option value="">Semua Status</option>
+            <option value="aktif">Akun Aktif</option>
+            <option value="belum">Belum Punya Akun</option>
+          </select>
+          <button class="btn-add" onclick="document.getElementById('addModal').classList.add('show')">+ Tambah Guru</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="guruTable">
+          <thead>
+            <tr>
+              <th>Nama Guru</th>
+              <th>Mata Pelajaran</th>
+              <th>Hari Piket</th>
+              <th>Status Akun</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="guruBody">${buildRows(gurus)}</tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <span style="font-size:11px;color:var(--text-3)">${gurus.length} guru ditampilkan</span>
+        <a href="#" class="btn-export" onclick="alert('Mengekspor data guru...')">↓ Ekspor</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Tambah/Edit Guru -->
+<div class="modal-wrap" id="addModal">
+  <div class="modal-inner">
+    <div class="modal-hd" id="modalTitle">Tambah Data Guru</div>
+    <div class="modal-sub">Isi informasi lengkap guru</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Gelar Depan</label>
+        <select class="form-control" id="fPrefix"><option>Bpk.</option><option>Ibu.</option><option>Dr.</option><option>Prof.</option></select>
+      </div>
+      <div class="form-group" style="flex:3">
+        <label class="form-label">Nama Lengkap</label>
+        <input class="form-control" id="fName" placeholder="Nama tanpa gelar" type="text">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Gelar Belakang</label>
+        <input class="form-control" id="fSuffix" placeholder="S.Pd" type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hari Piket</label>
+        <select class="form-control" id="fPicket">
+          <option value="-">Tidak Ada</option>
+          <option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mata Pelajaran</label>
+      <input class="form-control" id="fMapel" placeholder="contoh: Matematika" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email (untuk login)</label>
+      <input class="form-control" id="fEmail" placeholder="nama@sma1.sch.id" type="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password Awal <span style="color:var(--text-3)">(opsional — biarkan kosong untuk belum punya akun)</span></label>
+      <input class="form-control" id="fPass" placeholder="Min. 8 karakter" type="password">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('addModal').classList.remove('show')">Batal</button>
+      <button class="btn btn-primary" style="flex:1" onclick="submitGuru()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal konfirmasi hapus -->
+<div class="modal-wrap" id="delModal">
+  <div class="modal-inner" style="max-width:320px;text-align:center">
+    <div style="width:44px;height:44px;background:var(--red-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e84040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </div>
+    <div class="modal-hd">Hapus Data Guru?</div>
+    <div class="modal-sub" id="delMsg">Data guru akan dihapus permanen dari sistem.</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('delModal').classList.remove('show')">Batal</button>
+      <button class="btn" style="flex:1;background:var(--red);color:#fff" onclick="alert('Data berhasil dihapus!');document.getElementById('delModal').classList.remove('show')">Hapus</button>
+    </div>
+  </div>
+</div>`;
+
+initSidebar();
+
+function openEdit(id) {
+  document.getElementById('modalTitle').textContent = 'Edit Data Guru';
+  document.getElementById('addModal').classList.add('show');
+}
+function openDel(name) {
+  document.getElementById('delMsg').textContent = `Data "${name}" akan dihapus permanen dari sistem.`;
+  document.getElementById('delModal').classList.add('show');
+}
+function submitGuru() {
+  alert('Data guru berhasil disimpan!');
+  document.getElementById('addModal').classList.remove('show');
+}
+function filterGuru(q) {
+  const rows = document.querySelectorAll('#guruBody tr');
+  rows.forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+function filterStatus(v) {
+  const rows = document.querySelectorAll('#guruBody tr');
+  rows.forEach(r => {
+    if (!v) { r.style.display = ''; return; }
+    const hasGreen = r.querySelector('.badge-green');
+    if (v === 'aktif') r.style.display = hasGreen ? '' : 'none';
+    else r.style.display = hasGreen ? 'none' : '';
+  });
+}
+</script>
+</body>
+</html>

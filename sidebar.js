@@ -12,24 +12,38 @@ const NAV_ITEMS = [
   { href: 'rekap-pelanggaran.html', icon: '▦', label: 'Rekap Pelanggaran',id: 'rekap-pelanggaran' },
   { group: 'Jadwal' },
   { href: 'jadwal-piket.html',      icon: '⊞', label: 'Jadwal Piket Guru',id: 'jadwal-piket' },
+  { group: 'Admin', admin: true },
+  { href: 'admin-guru.html',        icon: '◑', label: 'Data Guru',        id: 'admin-guru',    admin: true },
+  { href: 'admin-murid.html',       icon: '◐', label: 'Data Murid',       id: 'admin-murid',   admin: true },
+  { href: 'admin-session.html',     icon: '◎', label: 'Session Aktif',    id: 'admin-session', admin: true },
+  { group: 'Lainnya' },
+  { href: 'about.html',             icon: '◉', label: 'About Developer',  id: 'about' },
 ];
 
-// Bottom nav shows the 5 most important pages
+// Bottom nav — 5 slots
 const BOTTOM_NAV = [
-  { href: 'dashboard.html',         icon: '◈', label: 'Dashboard',    id: 'dashboard' },
-  { href: 'presensi-otomatis.html', icon: '⊙', label: 'Presensi',     id: 'presensi-otomatis' },
-  { href: 'rekap-presensi.html',    icon: '▦', label: 'Rekap',        id: 'rekap-presensi' },
-  { href: 'catat-pelanggaran.html', icon: '⚠', label: 'Pelanggaran',  id: 'catat-pelanggaran' },
-  { href: 'jadwal-piket.html',      icon: '⊞', label: 'Jadwal',       id: 'jadwal-piket' },
+  { href: 'dashboard.html',         icon: '◈', label: 'Dashboard',  id: 'dashboard' },
+  { href: 'presensi-otomatis.html', icon: '⊙', label: 'Presensi',   id: 'presensi-otomatis' },
+  { href: 'rekap-presensi.html',    icon: '▦', label: 'Rekap',      id: 'rekap-presensi' },
+  { href: 'admin-guru.html',        icon: '◑', label: 'Admin',      id: 'admin-guru' },
+  { href: 'about.html',             icon: '◉', label: 'About',      id: 'about' },
 ];
 
 function renderSidebar(activePage) {
   const navHTML = NAV_ITEMS.map(item => {
-    if (item.group) return `<div class="nav-group-label">${item.group}</div>`;
+    if (item.group) {
+      const adminPill = item.admin
+        ? `<span style="font-size:8px;background:rgba(232,64,64,0.15);color:#e84040;padding:1px 6px;border-radius:10px;margin-left:6px;font-weight:600;letter-spacing:0.5px;border:0.5px solid rgba(232,64,64,0.25)">ADMIN</span>`
+        : '';
+      return `<div class="nav-group-label">${item.group}${adminPill}</div>`;
+    }
     const active = item.id === activePage ? ' active' : '';
     const badge  = item.badge ? `<span class="nav-badge">${item.badge}</span>` : '';
+    const adminDot = item.admin
+      ? `<span style="width:5px;height:5px;border-radius:50%;background:#e84040;display:inline-block;margin-left:auto;flex-shrink:0"></span>`
+      : '';
     return `<a href="${item.href}" class="nav-link${active}">
-      <span class="nav-icon">${item.icon}</span>${item.label}${badge}
+      <span class="nav-icon">${item.icon}</span>${item.label}${badge}${adminDot}
     </a>`;
   }).join('');
 
@@ -96,7 +110,6 @@ function renderTopbar(title, subtitle) {
   </div>`;
 }
 
-// ─── Init drawer toggle (call after DOM rendered) ─────────────────────────────
 function initSidebar() {
   const sidebar  = document.getElementById('sidebar');
   const backdrop = document.getElementById('sidebarBackdrop');
@@ -108,11 +121,7 @@ function initSidebar() {
 
   menuBtn.addEventListener('click', openSidebar);
   backdrop.addEventListener('click', closeSidebar);
-
-  // Close on nav-link tap (mobile UX)
   sidebar.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-      if (window.innerWidth < 900) closeSidebar();
-    });
+    link.addEventListener('click', () => { if (window.innerWidth < 900) closeSidebar(); });
   });
 }
