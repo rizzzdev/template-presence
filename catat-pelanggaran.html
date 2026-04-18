@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Catat Pelanggaran</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const vtypes = [
+  {code:'ATR-01',desc:'Atribut tidak lengkap',point:5},
+  {code:'HP-01', desc:'HP di kelas',          point:10},
+  {code:'TLB-02',desc:'Terlambat lebih dari 15 menit',point:5},
+  {code:'SRM-01',desc:'Seragam tidak sesuai', point:5},
+  {code:'RMB-01',desc:'Rambut tidak sesuai',  point:10},
+  {code:'FGT-01',desc:'Perkelahian / kekerasan',point:25},
+];
+const vtOptions = vtypes.map(v=>`<option value="${v.code}" data-point="${v.point}">${v.code} · ${v.desc} (${v.point} poin)</option>`).join('');
+
+document.getElementById('app').innerHTML = `
+${renderSidebar('catat-pelanggaran')}
+<div class="main">
+  ${renderTopbar('Catat Pelanggaran', 'Input pelanggaran siswa')}
+  <div class="page-content">
+    <div class="two-col">
+
+      <div class="card">
+        <div class="card-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="panel-icon" style="background:var(--red)">⚠</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-1)">Form Pelanggaran</div>
+              <div style="font-size:10px;color:var(--text-3)">Isi data pelanggaran siswa</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cari siswa (NIS atau nama)</label>
+          <input class="form-control" placeholder="Cari nama atau NIS...">
+        </div>
+        <div class="student-found">
+          <div class="sf-avatar">MR</div>
+          <div>
+            <div class="sf-name">Muhammad Rizki</div>
+            <div class="sf-meta">XI IPS 1 · NIS 20230089 · Poin: <span style="color:var(--red);font-weight:700">45</span></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jenis pelanggaran</label>
+          <select class="form-control" id="vtSelect" onchange="updatePoint(this)">
+            <option value="" disabled selected>Pilih jenis pelanggaran...</option>
+            ${vtOptions}
+          </select>
+        </div>
+        <div class="point-row" id="pointRow" style="display:none">
+          <span class="point-lbl">Poin pelanggaran</span>
+          <span class="badge badge-red" id="pointBadge">+0 poin</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal kejadian</label>
+          <input class="form-control" type="date" value="2026-04-17">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan tambahan</label>
+          <textarea class="form-control" placeholder="Opsional..."></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="alert('Pelanggaran berhasil disimpan!')">Simpan Pelanggaran</button>
+        <div style="font-size:11px;color:var(--text-3);text-align:center;margin-top:8px" id="totalAfter">
+          Total poin setelah pencatatan: <span style="color:var(--red);font-weight:600">45</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Jenis pelanggaran</span></div>
+          <div class="table-wrap">
+            <table class="data-table" style="min-width:300px">
+              <thead><tr><th>Kode</th><th>Deskripsi</th><th>Poin</th></tr></thead>
+              <tbody>${vtypes.map(v=>`
+              <tr>
+                <td><span class="badge badge-orange">${v.code}</span></td>
+                <td style="font-size:11px">${v.desc}</td>
+                <td><span class="badge badge-red">+${v.point}</span></td>
+              </tr>`).join('')}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Pelanggaran hari ini</span>
+            <a href="rekap-pelanggaran.html" class="card-link">Lihat →</a>
+          </div>
+          <div class="recent-item"><div><div class="ri-name">Muhammad Rizki <span style="color:var(--text-3);font-size:10px">XI IPS 1</span></div><div class="ri-time">08:14 · Atribut tdk lkp</div></div><span class="badge badge-red">+5</span></div>
+          <div class="recent-item"><div><div class="ri-name">Andi Prasetya <span style="color:var(--text-3);font-size:10px">XII IPA 2</span></div><div class="ri-time">09:02 · HP di kelas</div></div><span class="badge badge-red">+10</span></div>
+          <div class="recent-item"><div><div class="ri-name">Lestari Putri <span style="color:var(--text-3);font-size:10px">X IPA 1</span></div><div class="ri-time">07:55 · Seragam tdk sst</div></div><span class="badge badge-red">+5</span></div>
+          <div class="recent-item"><div><div class="ri-name">Riko Maulana <span style="color:var(--text-3);font-size:10px">XI IPS 2</span></div><div class="ri-time">08:38 · Terlambat &gt;15m</div></div><span class="badge badge-red">+5</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>`;
+initSidebar();
+
+function updatePoint(sel) {
+  const pt = sel.options[sel.selectedIndex].dataset.point;
+  if (!pt) return;
+  document.getElementById('pointRow').style.display = 'flex';
+  document.getElementById('pointBadge').textContent = '+' + pt + ' poin';
+  document.getElementById('totalAfter').innerHTML =
+    'Total poin setelah pencatatan: <span style="color:var(--red);font-weight:600">' + (45+parseInt(pt)) + '</span>';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Rekap Pelanggaran</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const viols = [
+  {name:'Muhammad Rizki', nis:'20230089',kelas:'XI IPS 1', type:'Atribut tdk lkp',code:'ATR-01',point:5, time:'08:14'},
+  {name:'Andi Prasetya',  nis:'20230112',kelas:'XII IPA 2',type:'HP di kelas',     code:'HP-01', point:10,time:'09:02'},
+  {name:'Lestari Putri',  nis:'20240033',kelas:'X IPA 1',  type:'Seragam tdk sst', code:'SRM-01',point:5, time:'07:55'},
+  {name:'Riko Maulana',   nis:'20240071',kelas:'XI IPS 2', type:'Terlambat >15m',  code:'TLB-02',point:5, time:'08:38'},
+  {name:'Siti Aminah',    nis:'20230055',kelas:'XII IPS 1',type:'HP di kelas',     code:'HP-01', point:10,time:'10:15'},
+  {name:'Fadhil Akbar',   nis:'20240019',kelas:'X IPA 2',  type:'Atribut tdk lkp', code:'ATR-01',point:5, time:'07:50'},
+  {name:'Nadia Rahmawati',nis:'20230088',kelas:'XI IPA 1', type:'Rambut tdk sst',  code:'RMB-01',point:10,time:'08:05'},
+  {name:'Kevin Santoso',  nis:'20240055',kelas:'XII IPA 1',type:'Atribut tdk lkp', code:'ATR-01',point:5, time:'07:49'},
+];
+const totalPt = viols.reduce((a,v)=>a+v.point,0);
+const isBig = c => ['HP-01','FGT-01','RKK-01'].includes(c);
+
+const rows = viols.map(v=>`
+  <tr>
+    <td><div style="font-size:12px;font-weight:500">${v.name}</div><div style="font-size:10px;color:var(--text-3)">${v.nis}</div></td>
+    <td style="font-size:11px;color:var(--text-2);white-space:nowrap">${v.kelas}</td>
+    <td><span class="badge ${isBig(v.code)?'badge-red':'badge-orange'}">${v.code}</span><div style="font-size:10px;color:var(--text-3);margin-top:2px">${v.type}</div></td>
+    <td><span class="badge badge-red">+${v.point}</span></td>
+    <td style="font-size:11px;color:var(--text-3);white-space:nowrap">${v.time}</td>
+    <td><a href="catat-pelanggaran.html" style="font-size:11px;color:var(--orange);text-decoration:none">Edit</a></td>
+  </tr>`).join('');
+
+document.getElementById('app').innerHTML = `
+${renderSidebar('rekap-pelanggaran')}
+<div class="main">
+  ${renderTopbar('Rekap Pelanggaran Harian')}
+  <div class="page-content">
+
+    <div class="chip-row">
+      <div class="chip"><span class="chip-dot" style="background:var(--red)"></span>Pelanggaran <strong>${viols.length}</strong></div>
+      <div class="chip"><span class="chip-dot" style="background:var(--orange)"></span>Total Poin <strong>${totalPt}</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head" style="flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="panel-icon" style="background:var(--red)">▦</div>
+          <span style="font-size:13px;font-weight:600;color:var(--text-1)">Rekap Pelanggaran</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="date" class="filter-select" value="2026-04-17" style="min-width:140px">
+          <select class="filter-select"><option>Semua Kelas</option><option>XII IPA 1</option><option>XI IPS 1</option></select>
+          <select class="filter-select"><option>Semua Jenis</option><option>ATR-01</option><option>HP-01</option></select>
+          <a href="#" class="btn-export" onclick="alert('Ekspor...')">↓ Ekspor</a>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Poin</th><th>Waktu</th><th>Aksi</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <span style="font-size:11px;color:var(--text-3)">${viols.length} pelanggaran · ${totalPt} poin hari ini</span>
+        <a href="catat-pelanggaran.html" class="btn btn-primary" style="padding:9px 16px;font-size:12px">+ Catat Pelanggaran</a>
+      </div>
+    </div>
+
+  </div>
+</div>`;
+initSidebar();
+</script>
+</body>
+</html>

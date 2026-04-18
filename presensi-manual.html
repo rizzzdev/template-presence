@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Presensi Manual</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const students = [
+  {no:1,name:'Ahmad Fauzan',nis:'20240001',status:'hadir'},
+  {no:2,name:'Bella Safitri',nis:'20240002',status:'sakit'},
+  {no:3,name:'Candra Wijaya',nis:'20240003',status:'ijin'},
+  {no:4,name:'Dian Pertiwi',nis:'20240004',status:'hadir'},
+  {no:5,name:'Eko Prasetyo',nis:'20240005',status:'hadir'},
+  {no:6,name:'Fitri Handayani',nis:'20240006',status:'hadir'},
+  {no:7,name:'Galih Santoso',nis:'20240007',status:'sakit'},
+  {no:8,name:'Hana Dewi',nis:'20240008',status:'hadir'},
+  {no:9,name:'Ilham Nugraha',nis:'20240009',status:'hadir'},
+  {no:10,name:'Jihan Rahayu',nis:'20240010',status:'ijin'},
+];
+
+const stuRows = students.map(s => `
+  <div class="stu-row">
+    <span class="stu-num">${s.no}</span>
+    <div style="flex:1"><span class="stu-name">${s.name}</span><span class="stu-nis">${s.nis}</span></div>
+    <select class="stu-select" style="color:${s.status==='hadir'?'var(--text-2)':'#4fa3e8'}">
+      <option ${s.status==='hadir'?'selected':''}>Hadir</option>
+      <option ${s.status==='sakit'?'selected':''}>Sakit</option>
+      <option ${s.status==='ijin'?'selected':''}>Ijin</option>
+    </select>
+  </div>`).join('');
+
+document.getElementById('app').innerHTML = `
+${renderSidebar('presensi-manual')}
+<div class="main">
+  ${renderTopbar('Presensi Manual', 'Input kehadiran Sakit & Ijin')}
+  <div class="page-content">
+    <div class="two-col">
+
+      <div class="card">
+        <div class="card-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="panel-icon" style="background:var(--blue)">✎</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-1)">Input Presensi Manual</div>
+              <div style="font-size:10px;color:var(--text-3)">Untuk siswa Sakit &amp; Ijin</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div style="flex:1;min-width:140px">
+            <label class="form-label">Kelas</label>
+            <select class="form-control">
+              <option>XII IPA 1</option><option>XII IPA 2</option>
+              <option>XI IPS 1</option><option>XI IPS 2</option>
+              <option>X IPA 1</option><option>X IPS 1</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:140px">
+            <label class="form-label">Tanggal</label>
+            <input class="form-control" type="date" value="2026-04-17">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px">
+          <span style="font-size:11px;color:var(--text-3)">Siswa — <strong style="color:var(--text-1)">XII IPA 1</strong> (32 siswa)</span>
+          <span style="font-size:11px;color:var(--orange);cursor:pointer">Filter</span>
+        </div>
+        <div style="max-height:340px;overflow-y:auto">${stuRows}</div>
+        <div class="divider"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" style="flex:1" onclick="alert('Data berhasil disimpan!')">Simpan</button>
+          <button class="btn btn-ghost" onclick="location.reload()">Reset</button>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Ringkasan XII IPA 1</span></div>
+          <div class="three-col">
+            <div style="background:var(--green-dim);border-radius:9px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:var(--green)">29</div>
+              <div style="font-size:10px;color:var(--text-3);margin-top:2px">Hadir</div>
+            </div>
+            <div style="background:var(--blue-dim);border-radius:9px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#4fa3e8">2</div>
+              <div style="font-size:10px;color:var(--text-3);margin-top:2px">Sakit</div>
+            </div>
+            <div style="background:var(--blue-dim);border-radius:9px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#4fa3e8">2</div>
+              <div style="font-size:10px;color:var(--text-3);margin-top:2px">Ijin</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Panduan</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:24px;height:24px;border-radius:6px;background:var(--orange-dim);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--orange);flex-shrink:0">1</div>
+              <span style="font-size:12px;color:var(--text-2)">Pilih kelas dan tanggal</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:24px;height:24px;border-radius:6px;background:var(--orange-dim);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--orange);flex-shrink:0">2</div>
+              <span style="font-size:12px;color:var(--text-2)">Ubah status siswa yang Sakit atau Ijin</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:24px;height:24px;border-radius:6px;background:var(--orange-dim);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--orange);flex-shrink:0">3</div>
+              <span style="font-size:12px;color:var(--text-2)">Klik Simpan untuk menyimpan data</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:11px;color:var(--text-3)">Hadir &amp; Terlambat via <a href="presensi-otomatis.html" style="color:var(--orange)">Presensi Otomatis</a></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>`;
+initSidebar();
+</script>
+</body>
+</html>

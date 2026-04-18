@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Presensi Otomatis</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+document.getElementById('app').innerHTML = `
+${renderSidebar('presensi-otomatis')}
+<div class="main">
+  ${renderTopbar('Presensi Otomatis', 'Scan atau input NIS siswa')}
+  <div class="page-content">
+    <div class="two-col">
+
+      <div class="card">
+        <div class="card-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="panel-icon" style="background:var(--orange)">⊙</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text-1)">Input NIS Siswa</div>
+              <div style="font-size:10px;color:var(--text-3)">Scan barcode atau ketik manual</div>
+            </div>
+          </div>
+        </div>
+        <div class="nis-box">
+          <div class="nis-box-label">Arahkan scanner ke barcode kartu siswa atau ketik NIS</div>
+          <input class="nis-input" id="nisInput" type="tel" inputmode="numeric" placeholder="_ _ _ _ _ _ _ _" value="20240047">
+        </div>
+        <div class="info-row">
+          <span class="info-lbl">Waktu saat ini</span>
+          <span class="info-val" style="color:var(--orange)" id="clockDisplay">07:43 WIB</span>
+        </div>
+        <div class="info-row">
+          <span class="info-lbl">Batas tepat waktu</span>
+          <span class="info-val">07:30 WIB</span>
+        </div>
+        <div class="confirm-card late">
+          <div class="confirm-avatar">AR</div>
+          <div>
+            <div class="confirm-name">Ahmad Rizky Pratama</div>
+            <div class="confirm-meta">XII IPA 1 &nbsp;·&nbsp; NIS 20240047</div>
+            <span class="badge badge-orange" style="margin-top:5px;display:inline-block">Terlambat 13 menit</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="alert('Presensi berhasil dicatat!')">
+          Konfirmasi &amp; Catat Presensi
+        </button>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="document.getElementById('nisInput').value=''">Reset</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Log presensi hari ini</span>
+          <a href="rekap-presensi.html" class="card-link">Rekap →</a>
+        </div>
+        <div class="three-col" style="margin-bottom:14px">
+          <div style="background:var(--green-dim);border-radius:9px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--green)">308</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:2px">Hadir</div>
+          </div>
+          <div style="background:var(--orange-dim);border-radius:9px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--orange)">33</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:2px">Terlambat</div>
+          </div>
+          <div style="background:var(--red-dim);border-radius:9px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:700;color:var(--red)">43</div>
+            <div style="font-size:10px;color:var(--text-3);margin-top:2px">Belum</div>
+          </div>
+        </div>
+        <div class="recent-lbl">Presensi terakhir dicatat</div>
+        <div class="recent-item"><div><div class="ri-name">Dewi Rahayu</div><div class="ri-time">07:28 · XI IPS 2</div></div><span class="badge badge-green">Hadir</span></div>
+        <div class="recent-item"><div><div class="ri-name">Budi Santoso</div><div class="ri-time">07:41 · XII IPA 2</div></div><span class="badge badge-orange">Terlambat</span></div>
+        <div class="recent-item"><div><div class="ri-name">Siti Nurhaliza</div><div class="ri-time">07:25 · X IPA 1</div></div><span class="badge badge-green">Hadir</span></div>
+        <div class="recent-item"><div><div class="ri-name">Riko Maulana</div><div class="ri-time">07:35 · XI IPA 1</div></div><span class="badge badge-orange">Terlambat</span></div>
+        <div class="recent-item"><div><div class="ri-name">Fadhil Akbar</div><div class="ri-time">07:22 · XII IPS 1</div></div><span class="badge badge-green">Hadir</span></div>
+        <div class="recent-item"><div><div class="ri-name">Nadia Putri</div><div class="ri-time">07:29 · X IPS 2</div></div><span class="badge badge-green">Hadir</span></div>
+        <div class="divider"></div>
+        <a href="presensi-manual.html" style="font-size:12px;color:var(--blue);text-decoration:none;display:block;text-align:center">
+          Input Sakit / Ijin → Presensi Manual
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>`;
+initSidebar();
+
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  const late = now.getHours() > 7 || (now.getHours() === 7 && now.getMinutes() >= 30);
+  const el = document.getElementById('clockDisplay');
+  if (el) { el.textContent = h + ':' + m + ' WIB'; el.style.color = late ? 'var(--orange)' : 'var(--green)'; }
+}
+setInterval(updateClock, 1000); updateClock();
+</script>
+</body>
+</html>

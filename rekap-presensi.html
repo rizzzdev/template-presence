@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Rekap Presensi</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const data = [
+  {kelas:'XII IPA 1',hadir:31,terlambat:1,absen:0,sakit:1,ijin:0},
+  {kelas:'XII IPA 2',hadir:28,terlambat:3,absen:2,sakit:0,ijin:1},
+  {kelas:'XI IPS 1', hadir:25,terlambat:5,absen:4,sakit:2,ijin:0},
+  {kelas:'XI IPS 2', hadir:26,terlambat:4,absen:3,sakit:1,ijin:2},
+  {kelas:'X IPA 1',  hadir:30,terlambat:2,absen:0,sakit:0,ijin:1},
+  {kelas:'X IPS 1',  hadir:27,terlambat:3,absen:2,sakit:1,ijin:1},
+  {kelas:'X IPS 2',  hadir:29,terlambat:1,absen:1,sakit:0,ijin:1},
+  {kelas:'XI IPA 1', hadir:28,terlambat:2,absen:2,sakit:1,ijin:0},
+  {kelas:'XI IPA 2', hadir:30,terlambat:1,absen:0,sakit:1,ijin:0},
+  {kelas:'XII IPS 1',hadir:24,terlambat:4,absen:3,sakit:2,ijin:1},
+];
+const tH=data.reduce((a,r)=>a+r.hadir,0), tT=data.reduce((a,r)=>a+r.terlambat,0),
+      tA=data.reduce((a,r)=>a+r.absen,0), tS=data.reduce((a,r)=>a+r.sakit,0), tI=data.reduce((a,r)=>a+r.ijin,0);
+
+const rows = data.map(r=>`
+  <tr>
+    <td style="font-weight:500">${r.kelas}</td>
+    <td><span class="badge badge-green">${r.hadir}</span></td>
+    <td><span class="badge badge-orange">${r.terlambat}</span></td>
+    <td><span class="badge badge-red">${r.absen}</span></td>
+    <td style="color:var(--text-2)">${r.sakit}</td>
+    <td style="color:var(--text-2)">${r.ijin}</td>
+  </tr>`).join('');
+
+document.getElementById('app').innerHTML = `
+${renderSidebar('rekap-presensi')}
+<div class="main">
+  ${renderTopbar('Rekap Presensi Harian')}
+  <div class="page-content">
+
+    <div class="chip-row">
+      <div class="chip"><span class="chip-dot" style="background:var(--green)"></span>Hadir <strong>${tH}</strong></div>
+      <div class="chip"><span class="chip-dot" style="background:var(--orange)"></span>Terlambat <strong>${tT}</strong></div>
+      <div class="chip"><span class="chip-dot" style="background:var(--red)"></span>Absen <strong>${tA}</strong></div>
+      <div class="chip"><span class="chip-dot" style="background:#4fa3e8"></span>Sakit <strong>${tS}</strong></div>
+      <div class="chip"><span class="chip-dot" style="background:#4fa3e8"></span>Ijin <strong>${tI}</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head" style="flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="panel-icon" style="background:var(--blue)">▦</div>
+          <span style="font-size:13px;font-weight:600;color:var(--text-1)">Rekap Presensi Harian</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="date" class="filter-select" value="2026-04-17" style="min-width:140px">
+          <select class="filter-select">
+            <option>Semua Kelas</option><option>XII IPA 1</option><option>XI IPS 1</option>
+          </select>
+          <a href="#" class="btn-export" onclick="alert('Ekspor...')">↓ Ekspor</a>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Kelas</th><th>Hadir</th><th>Terlambat</th><th>Absen</th><th>Sakit</th><th>Ijin</th></tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot>
+            <tr style="border-top:1px solid var(--border)">
+              <td style="font-weight:600">Total</td>
+              <td><span class="badge badge-green">${tH}</span></td>
+              <td><span class="badge badge-orange">${tT}</span></td>
+              <td><span class="badge badge-red">${tA}</span></td>
+              <td style="color:var(--text-2)">${tS}</td>
+              <td style="color:var(--text-2)">${tI}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+      <a href="presensi-otomatis.html" class="btn btn-primary">+ Presensi Otomatis</a>
+      <a href="presensi-manual.html" class="btn btn-secondary">+ Presensi Manual</a>
+    </div>
+
+  </div>
+</div>`;
+initSidebar();
+</script>
+</body>
+</html>

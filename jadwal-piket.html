@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Jadwal Piket Guru</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .add-modal-wrap { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; align-items:center; justify-content:center; padding:20px; }
+  .add-modal-wrap.show { display:flex; }
+</style>
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const schedule = [
+  {day:'Senin', short:'Sen',date:13,init:'AF',name:'Bpk. Ahmad Fauzi, S.Pd',    mapel:'Guru Matematika',      today:false},
+  {day:'Selasa',short:'Sel',date:14,init:'RD',name:'Ibu Ratna Dewi, M.Pd',       mapel:'Guru Bahasa Indonesia',today:false},
+  {day:'Rabu',  short:'Rab',date:15,init:'HW',name:'Bpk. Hendra Wibowo, S.Pd',  mapel:'Guru IPA',             today:true },
+  {day:'Kamis', short:'Kam',date:16,init:'SU',name:'Ibu Sari Utami, S.Pd',       mapel:'Guru PKn',             today:false},
+  {day:'Jumat', short:'Jum',date:17,init:'DS',name:'Bpk. Dodik Setiawan, S.Kom',mapel:'Guru TIK',             today:false},
+];
+const today = schedule.find(s=>s.today);
+
+const weekCards = schedule.map(s=>`
+  <div class="day-card${s.today?' today':''}">
+    <div class="day-lbl">${s.short}</div>
+    <div class="day-num">${s.date}</div>
+    <div class="day-init">${s.init}</div>
+  </div>`).join('');
+
+const tlItems = schedule.map(s=>`
+  <div class="tl-item">
+    <div class="tl-day${s.today?' today':''}">${s.short}</div>
+    <div style="flex:1">
+      <div class="tl-name">${s.name}</div>
+      <div class="tl-sub">${s.mapel}</div>
+    </div>
+    ${s.today?'<span class="badge badge-orange">Hari ini</span>':''}
+  </div>`).join('');
+
+document.getElementById('app').innerHTML = `
+${renderSidebar('jadwal-piket')}
+<div class="main">
+  ${renderTopbar('Jadwal Piket Guru', 'Pengaturan piket mingguan')}
+  <div class="page-content">
+    <div class="two-col">
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-head">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="panel-icon" style="background:var(--blue)">⊞</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-1)">Minggu Ini</div>
+                <div style="font-size:10px;color:var(--text-3)">April 2026 · Minggu ke-3</div>
+              </div>
+            </div>
+            <button class="btn-add" onclick="document.getElementById('addModal').classList.add('show')">+ Tambah</button>
+          </div>
+          <div class="week-grid">${weekCards}</div>
+          <div class="teacher-card">
+            <div class="teacher-avatar">${today.init}</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;color:var(--text-1)">${today.name}</div>
+              <div style="font-size:11px;color:var(--text-3)">${today.mapel} · Piket ${today.day}</div>
+              <span class="badge badge-orange" style="margin-top:5px;display:inline-block">Bertugas hari ini</span>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">Jadwal lengkap</div>
+          ${tlItems}
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Statistik piket bulan ini</span></div>
+          <div class="three-col" style="margin-bottom:14px">
+            <div style="background:var(--orange-dim);border-radius:9px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:var(--orange)">20</div>
+              <div style="font-size:10px;color:var(--text-3);margin-top:2px">Hari piket</div>
+            </div>
+            <div style="background:var(--blue-dim);border-radius:9px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:#4fa3e8">5</div>
+              <div style="font-size:10px;color:var(--text-3);margin-top:2px">Guru</div>
+            </div>
+            <div style="background:var(--green-dim);border-radius:9px;padding:12px;text-align:center">
+              <div style="font-size:22px;font-weight:700;color:var(--green)">4×</div>
+              <div style="font-size:10px;color:var(--text-3);margin-top:2px">Per guru</div>
+            </div>
+          </div>
+          ${schedule.map(s=>`
+          <div class="bar-row">
+            <div class="bar-label" style="width:80px;font-size:10px">${s.init}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${s.today?'100':'75'}%;background:${s.today?'var(--orange)':'var(--blue)'}"></div></div>
+            <div class="bar-val">4×</div>
+          </div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Minggu depan</span></div>
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:32px;margin-bottom:8px">📅</div>
+            <div style="font-size:12px;color:var(--text-3);margin-bottom:14px">Belum ada jadwal untuk minggu depan</div>
+            <button class="btn btn-ghost" onclick="document.getElementById('addModal').classList.add('show')">+ Buat jadwal minggu depan</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="add-modal-wrap" id="addModal">
+  <div class="modal-box">
+    <div class="modal-title">Tambah Jadwal Piket</div>
+    <div class="modal-sub">Isi data guru dan hari piket</div>
+    <div class="form-group" style="text-align:left">
+      <label class="form-label">Pilih guru</label>
+      <select class="form-control">
+        <option>Bpk. Ahmad Fauzi, S.Pd</option>
+        <option>Ibu Ratna Dewi, M.Pd</option>
+        <option>Bpk. Hendra Wibowo, S.Pd</option>
+        <option>Ibu Sari Utami, S.Pd</option>
+        <option>Bpk. Dodik Setiawan, S.Kom</option>
+      </select>
+    </div>
+    <div class="form-group" style="text-align:left">
+      <label class="form-label">Hari piket</label>
+      <select class="form-control">
+        <option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option>
+      </select>
+    </div>
+    <div class="form-group" style="text-align:left">
+      <label class="form-label">Mulai tanggal</label>
+      <input class="form-control" type="date" value="2026-04-20">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('addModal').classList.remove('show')">Batal</button>
+      <button class="btn btn-primary" style="flex:1" onclick="alert('Jadwal disimpan!');document.getElementById('addModal').classList.remove('show')">Simpan</button>
+    </div>
+  </div>
+</div>`;
+initSidebar();
+</script>
+</body>
+</html>
