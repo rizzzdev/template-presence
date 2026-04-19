@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: 'admin-guru.html',        icon: '◑', label: 'Data Guru',        id: 'admin-guru',    admin: true },
   { href: 'admin-murid.html',       icon: '◐', label: 'Data Murid',       id: 'admin-murid',   admin: true },
   { href: 'admin-session.html',     icon: '◎', label: 'Session Aktif',    id: 'admin-session', admin: true },
+  { href: 'admin-kelas.html',       icon: '▣', label: 'Data Kelas',       id: 'admin-kelas',   admin: true },
   { group: 'Lainnya' },
   { href: 'about.html',             icon: '◉', label: 'About Developer',  id: 'about' },
 ];

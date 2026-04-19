@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presence — Data Kelas</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .admin-badge { display:inline-flex;align-items:center;gap:5px;background:rgba(232,64,64,0.1);border:0.5px solid rgba(232,64,64,0.25);color:#e84040;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600; }
+  .modal-wrap { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:center;justify-content:center;padding:20px; }
+  .modal-wrap.show { display:flex; }
+  .modal-inner { background:var(--navy-soft);border:0.5px solid var(--border-md);border-radius:14px;padding:24px 22px;width:100%;max-width:460px; }
+  .modal-hd  { font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:4px; }
+  .modal-sub { font-size:12px;color:var(--text-3);margin-bottom:20px; }
+
+  /* Kelas card grid */
+  .kelas-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:20px; }
+  @media(min-width:640px)  { .kelas-grid { grid-template-columns:repeat(3,1fr); } }
+  @media(min-width:900px)  { .kelas-grid { grid-template-columns:repeat(4,1fr); } }
+
+  .kelas-card {
+    background:rgba(255,255,255,0.04);
+    border:0.5px solid var(--border-md);
+    border-radius:12px; padding:16px;
+    cursor:pointer; transition:border-color 0.15s, background 0.15s;
+    position:relative; overflow:hidden;
+  }
+  .kelas-card:hover { border-color:rgba(255,140,0,0.35); background:rgba(255,140,0,0.04); }
+  .kelas-card.selected { border-color:var(--orange); background:rgba(255,140,0,0.06); }
+
+  .kelas-card::before {
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--kelas-color,var(--orange));
+    border-radius:12px 12px 0 0;
+  }
+
+  .kelas-initial {
+    width:42px;height:42px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;margin-bottom:10px;
+    flex-shrink:0;
+  }
+  .kelas-name { font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:3px; }
+  .kelas-desc { font-size:10px;color:var(--text-3);margin-bottom:10px;line-height:1.5;
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis; }
+
+  .kelas-meta { display:flex;align-items:center;justify-content:space-between; }
+  .kelas-count {
+    display:flex;align-items:center;gap:5px;
+    font-size:11px;color:var(--text-2);font-weight:500;
+  }
+  .kelas-count-dot { width:6px;height:6px;border-radius:50%;background:var(--green); }
+
+  .kelas-actions { display:flex;gap:5px; }
+  .kelas-btn {
+    width:24px;height:24px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    border:0.5px solid var(--border-md);
+    background:rgba(255,255,255,0.05);
+    color:var(--text-3);font-size:11px;cursor:pointer;
+    transition:background 0.15s,color 0.15s;
+  }
+  .kelas-btn.edit:hover { background:var(--blue-dim);color:#4fa3e8;border-color:rgba(26,111,196,0.3); }
+  .kelas-btn.del:hover  { background:var(--red-dim);color:var(--red);border-color:rgba(232,64,64,0.3); }
+
+  /* Detail panel */
+  .detail-panel {
+    background:rgba(255,255,255,0.04);
+    border:0.5px solid var(--border-md);
+    border-radius:12px; padding:18px;
+  }
+  .detail-header {
+    display:flex;align-items:center;gap:14px;
+    padding-bottom:14px;margin-bottom:14px;
+    border-bottom:0.5px solid var(--border);
+  }
+  .detail-initial {
+    width:48px;height:48px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;font-weight:700;flex-shrink:0;
+  }
+  .detail-name { font-size:16px;font-weight:600;color:var(--text-1); }
+  .detail-desc { font-size:11px;color:var(--text-3);margin-top:3px; }
+
+  .murid-list-item {
+    display:flex;align-items:center;gap:10px;
+    padding:8px 0;border-bottom:0.5px solid var(--border);
+  }
+  .murid-list-item:last-child { border-bottom:none; }
+  .murid-avatar {
+    width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;flex-shrink:0;
+  }
+  .murid-name { font-size:12px;font-weight:500;color:var(--text-1); }
+  .murid-nis  { font-size:10px;color:var(--text-3); }
+  .murid-poin { margin-left:auto;font-size:11px;font-weight:600; }
+</style>
+</head>
+<body>
+<div class="layout" id="app"></div>
+<script src="sidebar.js"></script>
+<script>
+const kelasList = [
+  { id:1, name:'XII IPA 1', desc:'Kelas 12 IPA Unggulan', jurusan:'IPA', tingkat:12, color:'#ff8c00', bg:'rgba(255,140,0,0.15)', total:32, hadir:31 },
+  { id:2, name:'XII IPA 2', desc:'Kelas 12 IPA Reguler',  jurusan:'IPA', tingkat:12, color:'#ff8c00', bg:'rgba(255,140,0,0.15)', total:30, hadir:28 },
+  { id:3, name:'XII IPS 1', desc:'Kelas 12 IPS Unggulan', jurusan:'IPS', tingkat:12, color:'#4fa3e8', bg:'rgba(79,163,232,0.15)', total:31, hadir:29 },
+  { id:4, name:'XII IPS 2', desc:'Kelas 12 IPS Reguler',  jurusan:'IPS', tingkat:12, color:'#4fa3e8', bg:'rgba(79,163,232,0.15)', total:30, hadir:26 },
+  { id:5, name:'XI IPA 1',  desc:'Kelas 11 IPA Unggulan', jurusan:'IPA', tingkat:11, color:'#2db87a', bg:'rgba(45,184,122,0.15)', total:32, hadir:30 },
+  { id:6, name:'XI IPA 2',  desc:'Kelas 11 IPA Reguler',  jurusan:'IPA', tingkat:11, color:'#2db87a', bg:'rgba(45,184,122,0.15)', total:31, hadir:29 },
+  { id:7, name:'XI IPS 1',  desc:'Kelas 11 IPS Unggulan', jurusan:'IPS', tingkat:11, color:'#c47af0', bg:'rgba(196,122,240,0.15)', total:30, hadir:25 },
+  { id:8, name:'XI IPS 2',  desc:'Kelas 11 IPS Reguler',  jurusan:'IPS', tingkat:11, color:'#c47af0', bg:'rgba(196,122,240,0.15)', total:29, hadir:26 },
+  { id:9, name:'X IPA 1',   desc:'Kelas 10 IPA Unggulan', jurusan:'IPA', tingkat:10, color:'#e84040', bg:'rgba(232,64,64,0.15)',   total:32, hadir:30 },
+  { id:10,name:'X IPA 2',   desc:'Kelas 10 IPA Reguler',  jurusan:'IPA', tingkat:10, color:'#e84040', bg:'rgba(232,64,64,0.15)',   total:31, hadir:29 },
+  { id:11,name:'X IPS 1',   desc:'Kelas 10 IPS Unggulan', jurusan:'IPS', tingkat:10, color:'#1a6fc4', bg:'rgba(26,111,196,0.15)',  total:30, hadir:27 },
+  { id:12,name:'X IPS 2',   desc:'Kelas 10 IPS Reguler',  jurusan:'IPS', tingkat:10, color:'#1a6fc4', bg:'rgba(26,111,196,0.15)',  total:29, hadir:27 },
+];
+
+// Murid sample untuk detail panel
+const sampleMurid = [
+  { name:'Ahmad Rizky Pratama', nis:'20240047', poin:15,  color:'#ff8c00' },
+  { name:'Bella Safitri',       nis:'20240002', poin:0,   color:'#4fa3e8' },
+  { name:'Candra Wijaya',       nis:'20240003', poin:10,  color:'#2db87a' },
+  { name:'Dian Pertiwi',        nis:'20240004', poin:0,   color:'#c47af0' },
+  { name:'Eko Prasetyo',        nis:'20240005', poin:5,   color:'#e84040' },
+  { name:'Fitri Handayani',     nis:'20240006', poin:0,   color:'#ff8c00' },
+  { name:'Galih Santoso',       nis:'20240007', poin:20,  color:'#4fa3e8' },
+  { name:'Hana Dewi',           nis:'20240008', poin:0,   color:'#2db87a' },
+];
+
+let selectedKelas = kelasList[0];
+let filtered = [...kelasList];
+
+function initials(name) {
+  return name.replace(/\s+/g,' ').trim().split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function pctColor(hadir, total) {
+  const p = hadir/total;
+  if (p >= 0.9) return 'var(--green)';
+  if (p >= 0.75) return 'var(--orange)';
+  return 'var(--red)';
+}
+
+function renderCards(list) {
+  return list.map(k => `
+    <div class="kelas-card${selectedKelas.id===k.id?' selected':''}"
+         style="--kelas-color:${k.color}"
+         onclick="selectKelas(${k.id})">
+      <div class="kelas-initial" style="background:${k.bg};color:${k.color}">${initials(k.name)}</div>
+      <div class="kelas-name">${k.name}</div>
+      <div class="kelas-desc">${k.desc}</div>
+      <div class="kelas-meta">
+        <div class="kelas-count">
+          <div class="kelas-count-dot" style="background:${pctColor(k.hadir,k.total)}"></div>
+          <span style="color:${pctColor(k.hadir,k.total)}">${k.hadir}</span>
+          <span style="color:var(--text-3)">/ ${k.total} hadir</span>
+        </div>
+        <div class="kelas-actions" onclick="event.stopPropagation()">
+          <div class="kelas-btn edit" onclick="openEdit(${k.id})" title="Edit">✎</div>
+          <div class="kelas-btn del"  onclick="openDel('${k.name}')" title="Hapus">✕</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderDetail(k) {
+  const pct = Math.round(k.hadir/k.total*100);
+  return `
+    <div class="detail-header">
+      <div class="detail-initial" style="background:${k.bg};color:${k.color}">${initials(k.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="detail-name">${k.name}</div>
+        <div class="detail-desc">${k.desc}</div>
+      </div>
+      <button class="btn-add" onclick="openEdit(${k.id})">✎ Edit</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border-md);border-radius:9px;padding:10px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:${k.color}">${k.total}</div>
+        <div style="font-size:9px;color:var(--text-3);margin-top:2px">Total siswa</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border-md);border-radius:9px;padding:10px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:var(--green)">${k.hadir}</div>
+        <div style="font-size:9px;color:var(--text-3);margin-top:2px">Hadir hari ini</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border-md);border-radius:9px;padding:10px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:${pctColor(k.hadir,k.total)}">${pct}%</div>
+        <div style="font-size:9px;color:var(--text-3);margin-top:2px">Kehadiran</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:10px;color:var(--text-3)">Tingkat kehadiran</span>
+        <span style="font-size:10px;font-weight:600;color:${pctColor(k.hadir,k.total)}">${pct}%</span>
+      </div>
+      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${pctColor(k.hadir,k.total)};border-radius:3px;transition:width 0.5s"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px">
+      <span style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.8px;font-weight:600">Daftar siswa</span>
+      <a href="admin-murid.html" style="font-size:10px;color:var(--orange);text-decoration:none">Kelola →</a>
+    </div>
+
+    <div style="max-height:260px;overflow-y:auto" class="scrollbar-thin">
+      ${sampleMurid.map((m,i) => `
+      <div class="murid-list-item">
+        <div class="murid-avatar" style="background:${m.color}22;color:${m.color}">${initials(m.name)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="murid-name">${m.name}</div>
+          <div class="murid-nis">NIS ${m.nis}</div>
+        </div>
+        <div class="murid-poin" style="color:${m.poin>=20?'var(--red)':m.poin>0?'var(--orange)':'var(--text-3)'}">
+          ${m.poin > 0 ? m.poin + ' poin' : '—'}
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+function buildPage() {
+  document.getElementById('kelasGrid').innerHTML = renderCards(filtered);
+  document.getElementById('detailPanel').innerHTML = renderDetail(selectedKelas);
+}
+
+function selectKelas(id) {
+  selectedKelas = kelasList.find(k=>k.id===id);
+  buildPage();
+}
+
+function filterKelas(q) {
+  q = q.toLowerCase();
+  filtered = kelasList.filter(k =>
+    k.name.toLowerCase().includes(q) ||
+    k.jurusan.toLowerCase().includes(q) ||
+    String(k.tingkat).includes(q)
+  );
+  document.getElementById('kelasGrid').innerHTML = renderCards(filtered);
+}
+
+function filterTingkat(v) {
+  filtered = v ? kelasList.filter(k=>String(k.tingkat)===v) : [...kelasList];
+  document.getElementById('kelasGrid').innerHTML = renderCards(filtered);
+}
+
+function filterJurusan(v) {
+  filtered = v ? kelasList.filter(k=>k.jurusan===v) : [...kelasList];
+  document.getElementById('kelasGrid').innerHTML = renderCards(filtered);
+}
+
+function openEdit(id) {
+  const k = kelasList.find(k=>k.id===id) || selectedKelas;
+  document.getElementById('modalTitle').textContent = id ? 'Edit Data Kelas' : 'Tambah Kelas Baru';
+  document.getElementById('fName').value    = id ? k.name : '';
+  document.getElementById('fDesc').value    = id ? k.desc : '';
+  document.getElementById('fTingkat').value = id ? k.tingkat : '';
+  document.getElementById('fJurusan').value = id ? k.jurusan : '';
+  document.getElementById('addModal').classList.add('show');
+}
+
+function openDel(name) {
+  document.getElementById('delMsg').textContent = `Kelas "${name}" beserta seluruh data presensi dan pelanggaran siswa di dalamnya akan dihapus permanen.`;
+  document.getElementById('delModal').classList.add('show');
+}
+
+// ─── Render halaman ───────────────────────────────────────────────────────────
+document.getElementById('app').innerHTML = `
+${renderSidebar('admin-kelas')}
+<div class="main">
+  ${renderTopbar('Manajemen Data Kelas', 'Admin — kelola data kelas')}
+  <div class="page-content">
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      <div class="admin-badge">
+        <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zm0 8c-3.3 0-6 1.3-6 3v1h12v-1c0-1.7-2.7-3-6-3z"/></svg>
+        ADMIN
+      </div>
+      <span style="font-size:12px;color:var(--text-3)">Halaman ini hanya dapat diakses oleh Administrator</span>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+      <div class="stat-card t-orange">
+        <div class="stat-label">Total Kelas</div>
+        <div class="stat-value">${kelasList.length}</div>
+        <div class="stat-sub">Aktif terdaftar</div>
+      </div>
+      <div class="stat-card t-blue">
+        <div class="stat-label">Kelas X</div>
+        <div class="stat-value">${kelasList.filter(k=>k.tingkat===10).length}</div>
+        <div class="stat-sub">Tingkat 10</div>
+      </div>
+      <div class="stat-card t-green">
+        <div class="stat-label">Kelas XI</div>
+        <div class="stat-value">${kelasList.filter(k=>k.tingkat===11).length}</div>
+        <div class="stat-sub">Tingkat 11</div>
+      </div>
+      <div class="stat-card t-red">
+        <div class="stat-label">Kelas XII</div>
+        <div class="stat-value">${kelasList.filter(k=>k.tingkat===12).length}</div>
+        <div class="stat-sub">Tingkat 12</div>
+      </div>
+    </div>
+
+    <!-- Grid + Detail -->
+    <div style="display:grid;grid-template-columns:1fr;gap:16px" id="mainGrid">
+
+      <!-- Kiri: filter + card grid -->
+      <div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+          <input class="filter-select" type="text" placeholder="Cari kelas..."
+            style="min-width:160px;flex:1" oninput="filterKelas(this.value)">
+          <select class="filter-select" onchange="filterTingkat(this.value)" style="flex:1;min-width:100px">
+            <option value="">Semua Tingkat</option>
+            <option value="10">Kelas X</option>
+            <option value="11">Kelas XI</option>
+            <option value="12">Kelas XII</option>
+          </select>
+          <select class="filter-select" onchange="filterJurusan(this.value)" style="flex:1;min-width:100px">
+            <option value="">Semua Jurusan</option>
+            <option value="IPA">IPA</option>
+            <option value="IPS">IPS</option>
+          </select>
+          <button class="btn-add" onclick="openEdit(null)">+ Tambah Kelas</button>
+        </div>
+        <div class="kelas-grid" id="kelasGrid"></div>
+      </div>
+
+      <!-- Kanan: detail panel -->
+      <div class="detail-panel" id="detailPanel"></div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal tambah/edit -->
+<div class="modal-wrap" id="addModal">
+  <div class="modal-inner">
+    <div class="modal-hd" id="modalTitle">Tambah Kelas Baru</div>
+    <div class="modal-sub">Isi informasi kelas</div>
+
+    <div class="form-group">
+      <label class="form-label">Nama Kelas</label>
+      <input class="form-control" id="fName" placeholder="contoh: XII IPA 1" type="text">
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Tingkat</label>
+        <select class="form-control" id="fTingkat">
+          <option value="">Pilih...</option>
+          <option value="10">X (10)</option>
+          <option value="11">XI (11)</option>
+          <option value="12">XII (12)</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">Jurusan</label>
+        <select class="form-control" id="fJurusan">
+          <option value="">Pilih...</option>
+          <option value="IPA">IPA</option>
+          <option value="IPS">IPS</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deskripsi <span style="color:var(--text-3)">(opsional)</span></label>
+      <input class="form-control" id="fDesc" placeholder="contoh: Kelas unggulan IPA" type="text">
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('addModal').classList.remove('show')">Batal</button>
+      <button class="btn btn-primary" style="flex:1" onclick="submitKelas()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal hapus -->
+<div class="modal-wrap" id="delModal">
+  <div class="modal-inner" style="max-width:340px;text-align:center">
+    <div style="width:44px;height:44px;background:var(--red-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e84040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <div class="modal-hd">Hapus Kelas?</div>
+    <div class="modal-sub" id="delMsg" style="text-align:left"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('delModal').classList.remove('show')">Batal</button>
+      <button class="btn" style="flex:1;background:var(--red);color:#fff" onclick="alert('Kelas berhasil dihapus!');document.getElementById('delModal').classList.remove('show')">Hapus</button>
+    </div>
+  </div>
+</div>`;
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+initSidebar();
+buildPage();
+
+// Responsive: two-column layout on desktop
+function applyLayout() {
+  const grid = document.getElementById('mainGrid');
+  if (!grid) return;
+  if (window.innerWidth >= 900) {
+    grid.style.gridTemplateColumns = '1fr 320px';
+  } else {
+    grid.style.gridTemplateColumns = '1fr';
+  }
+}
+applyLayout();
+window.addEventListener('resize', applyLayout);
+
+function submitKelas() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { alert('Nama kelas tidak boleh kosong.'); return; }
+  alert(`Kelas "${name}" berhasil disimpan!`);
+  document.getElementById('addModal').classList.remove('show');
+}
+</script>
+</body>
+</html>

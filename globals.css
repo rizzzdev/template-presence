@@ -1,0 +1,742 @@
+/*
+ * PRESENCE — globals.css
+ * Tailwind CSS v4
+ * Letakkan di: app/globals.css
+ * Import di layout.tsx: import '@/app/globals.css'
+ *
+ * Tailwind v4 tidak butuh tailwind.config.js.
+ * Semua konfigurasi dilakukan di sini via @theme.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ════════════════════════════════════════════════════════════
+   @theme — Design tokens Presence
+   Semua token di sini otomatis menjadi utility class Tailwind.
+   Contoh: --color-navy-deep → bg-navy-deep, text-navy-deep, dll.
+   ════════════════════════════════════════════════════════════ */
+@theme {
+
+  /* ── Font ── */
+  --font-sans: 'Poppins', sans-serif;
+
+  /* ── Warna brand Presence ── */
+  --color-navy-deep:  #071525;
+  --color-navy-mid:   #0a1e35;
+  --color-navy-soft:  #0f2844;
+  --color-navy-card:  #112d4a;
+  --color-navy-hover: #163556;
+
+  --color-orange:        #ff8c00;
+  --color-orange-dim:    rgba(255, 140, 0, 0.12);
+  --color-orange-border: rgba(255, 140, 0, 0.30);
+  --color-orange-50:     #fff7eb;
+  --color-orange-100:    #ffe5b4;
+  --color-orange-200:    #ffca66;
+  --color-orange-300:    #ffb033;
+  --color-orange-400:    #ff9900;
+  --color-orange-500:    #ff8c00;
+  --color-orange-600:    #e07a00;
+  --color-orange-700:    #b36000;
+  --color-orange-800:    #804500;
+  --color-orange-900:    #4d2a00;
+
+  --color-blue:        #1a6fc4;
+  --color-blue-dim:    rgba(26, 111, 196, 0.12);
+  --color-blue-border: rgba(26, 111, 196, 0.30);
+  --color-blue-400:    #4fa3e8;
+  --color-blue-500:    #1a6fc4;
+  --color-blue-600:    #155ca3;
+
+  --color-green:        #2db87a;
+  --color-green-dim:    rgba(45, 184, 122, 0.12);
+  --color-green-400:    #4dd99a;
+  --color-green-500:    #2db87a;
+  --color-green-600:    #249e68;
+
+  --color-red:        #e84040;
+  --color-red-dim:    rgba(232, 64, 64, 0.10);
+  --color-red-400:    #f07070;
+  --color-red-500:    #e84040;
+  --color-red-600:    #c43030;
+
+  /* ── Teks ── */
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.65);
+  --color-text-muted:     rgba(255, 255, 255, 0.38);
+
+  /* ── Border ── */
+  --color-border-base:   rgba(255, 255, 255, 0.07);
+  --color-border-medium: rgba(255, 255, 255, 0.12);
+
+  /* ── Spacing layout ── */
+  --spacing-sidebar:    240px;
+  --spacing-topbar:     56px;
+  --spacing-bottomnav:  64px;
+
+  /* ── Border radius ── */
+  --radius-2xs: 4px;
+  --radius-xs:  6px;
+  --radius-sm:  8px;
+  --radius-md:  10px;
+  --radius-lg:  12px;
+  --radius-xl:  14px;
+  --radius-2xl: 16px;
+
+  /* ── Z-index ── */
+  --z-bottomnav: 100;
+  --z-topbar:    100;
+  --z-sidebar:   200;
+  --z-backdrop:  199;
+  --z-modal:     300;
+
+  /* ── Animasi ── */
+  --animate-slide-in:  slide-in 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-slide-out: slide-out 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-fade-in:   fade-in 0.2s ease;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+
+  @keyframes slide-in {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+  }
+  @keyframes slide-out {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100%); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(1.3); }
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   BASE — reset & elemen dasar
+   ════════════════════════════════════════════════════════════ */
+@layer base {
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-navy-deep);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    min-height: 100svh;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a { text-decoration: none; }
+
+  /* ── Scrollbar global — warna brand orange Presence ── */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 140, 0, 0.35) rgba(10, 30, 53, 0.5);
+  }
+
+  *::-webkit-scrollbar {
+    width:  5px;
+    height: 5px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background:    rgba(10, 30, 53, 0.5);
+    border-radius: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background:    rgba(255, 140, 0, 0.35);
+    border-radius: 10px;
+    border:        1px solid rgba(255, 140, 0, 0.10);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 140, 0, 0.65);
+  }
+
+  *::-webkit-scrollbar-thumb:active {
+    background: #ff8c00;
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SCROLLBAR VARIANTS
+   Gunakan sebagai className di komponen React.
+
+   Contoh:
+     <nav className="overflow-y-auto scrollbar-thin">      ← sidebar nav
+     <div className="overflow-y-auto scrollbar-blue">      ← halaman utama
+     <div className="overflow-y-auto scrollbar-autohide">  ← muncul saat hover
+     <div className="overflow-x-auto scrollbar-x">         ← tabel horizontal
+     <div className="overflow-y-auto scrollbar-none">       ← tersembunyi
+   ════════════════════════════════════════════════════════════ */
+@layer utilities {
+
+  /* ── Thin (3px) — sidebar nav, dropdown ── */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 140, 0, 0.30) transparent;
+
+    &::-webkit-scrollbar        { width: 3px; height: 3px; }
+    &::-webkit-scrollbar-track  { background: transparent; }
+    &::-webkit-scrollbar-thumb  {
+      background:    rgba(255, 140, 0, 0.30);
+      border-radius: 10px;
+      border:        none;
+    }
+    &::-webkit-scrollbar-thumb:hover  { background: rgba(255, 140, 0, 0.55); }
+    &::-webkit-scrollbar-thumb:active { background: #ff8c00; }
+  }
+
+  /* ── None — tersembunyi tapi tetap scrollable ── */
+  .scrollbar-none {
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  /* ── Auto-hide — hanya muncul saat hover ── */
+  .scrollbar-autohide {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      width:  5px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      background:    rgba(10, 30, 53, 0.5);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background:    transparent;
+      border-radius: 10px;
+      transition:    background 0.25s ease;
+    }
+    &:hover {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 140, 0, 0.35) rgba(10, 30, 53, 0.5);
+    }
+    &:hover::-webkit-scrollbar-thumb {
+      background: rgba(255, 140, 0, 0.35);
+    }
+    &:hover::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 140, 0, 0.65);
+    }
+    &:hover::-webkit-scrollbar-thumb:active {
+      background: #ff8c00;
+    }
+  }
+
+  /* ── Blue — page content utama ── */
+  .scrollbar-blue {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(26, 111, 196, 0.45) rgba(10, 30, 53, 0.5);
+
+    &::-webkit-scrollbar        { width: 4px; height: 4px; }
+    &::-webkit-scrollbar-track  {
+      background:    rgba(10, 30, 53, 0.5);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb  {
+      background:    rgba(26, 111, 196, 0.45);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover  { background: #1a6fc4; }
+    &::-webkit-scrollbar-thumb:active { background: #4fa3e8; }
+  }
+
+  /* ── Green — log / aktivitas ── */
+  .scrollbar-green {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(45, 184, 122, 0.45) rgba(10, 30, 53, 0.5);
+
+    &::-webkit-scrollbar        { width: 4px; height: 4px; }
+    &::-webkit-scrollbar-track  {
+      background:    rgba(10, 30, 53, 0.5);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb  {
+      background:    rgba(45, 184, 122, 0.45);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover  { background: #2db87a; }
+    &::-webkit-scrollbar-thumb:active { background: #4dd99a; }
+  }
+
+  /* ── Horizontal — tabel overflow-x ── */
+  .scrollbar-x {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 140, 0, 0.30) rgba(10, 30, 53, 0.5);
+
+    &::-webkit-scrollbar        { height: 4px; }
+    &::-webkit-scrollbar-track  {
+      background:    rgba(10, 30, 53, 0.5);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb  {
+      background:    rgba(255, 140, 0, 0.30);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover  { background: rgba(255, 140, 0, 0.65); }
+    &::-webkit-scrollbar-thumb:active { background: #ff8c00; }
+  }
+
+}
+
+/* ════════════════════════════════════════════════════════════
+   COMPONENTS — class siap pakai untuk komponen Presence
+   ════════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Layout ── */
+  .presence-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+
+    @media (width >= 900px) {
+      flex-direction: row;
+      height: 100svh;
+      overflow: hidden;
+    }
+  }
+
+  /* ── Sidebar ── */
+  .presence-sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: var(--spacing-sidebar);
+    background-color: var(--color-navy-mid);
+    border-right: 1px solid var(--color-border-base);
+    display: flex;
+    flex-direction: column;
+    z-index: var(--z-sidebar);
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    @media (width >= 900px) {
+      position: relative;
+      transform: translateX(0);
+      height: 100svh;
+      flex-shrink: 0;
+    }
+  }
+  .presence-sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* ── Sidebar nav (gunakan scrollbar-thin) ── */
+  .sidebar-nav {
+    flex: 1;
+    padding-block: 4px;
+    overflow-y: auto;
+    border-top: 1px solid var(--color-border-base);
+  }
+
+  /* ── Topbar ── */
+  .presence-topbar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-topbar);
+    height: var(--spacing-topbar);
+    background-color: var(--color-navy-mid);
+    border-bottom: 1px solid var(--color-border-base);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 1rem;
+
+    @media (width >= 900px) {
+      padding-inline: 1.75rem;
+      height: 62px;
+    }
+  }
+
+  /* ── Page content ── */
+  .presence-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    padding-bottom: calc(var(--spacing-bottomnav) + 1rem);
+
+    @media (width >= 900px) {
+      padding: 1.5rem 1.75rem;
+      height: calc(100svh - 62px);
+    }
+  }
+
+  /* ── Bottom nav (mobile only) ── */
+  .presence-bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--spacing-bottomnav);
+    background-color: var(--color-navy-mid);
+    border-top: 1px solid var(--color-border-base);
+    display: flex;
+    align-items: center;
+    z-index: var(--z-bottomnav);
+    padding: 0 4px;
+    padding-bottom: env(safe-area-inset-bottom);
+
+    @media (width >= 900px) {
+      display: none;
+    }
+  }
+
+  /* ── Card ── */
+  .card {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 0.5px solid var(--color-border-medium);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+
+    &:last-child { margin-bottom: 0; }
+
+    @media (width >= 640px) {
+      padding: 16px 18px;
+    }
+  }
+
+  /* ── Stat card ── */
+  .stat-card {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 0.5px solid var(--color-border-medium);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+  }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-green  { background-color: var(--color-green-dim);  color: var(--color-green); }
+  .badge-orange { background-color: var(--color-orange-dim); color: var(--color-orange); }
+  .badge-red    { background-color: var(--color-red-dim);    color: var(--color-red); }
+  .badge-blue   { background-color: var(--color-blue-dim);   color: var(--color-blue-400); }
+
+  /* ── Nav link ── */
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: background-color 0.15s, color 0.15s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+      color: var(--color-text-primary);
+    }
+    &.active {
+      background-color: var(--color-orange-dim);
+      color: var(--color-text-primary);
+      border-left-color: var(--color-orange);
+    }
+    &.active .nav-icon {
+      color: var(--color-orange);
+    }
+  }
+
+  /* ── Button ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+
+    &:active { transform: scale(0.98); }
+  }
+  .btn-primary   { background-color: var(--color-orange); color: #fff; &:hover { opacity: 0.9; } }
+  .btn-secondary { background-color: var(--color-blue);   color: #fff; &:hover { opacity: 0.9; } }
+  .btn-danger    { background-color: var(--color-red);    color: #fff; &:hover { opacity: 0.9; } }
+  .btn-ghost {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border-medium);
+    &:hover { background-color: rgba(255, 255, 255, 0.10); }
+  }
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--color-orange-dim);
+    color: var(--color-orange);
+    border: 0.5px solid var(--color-orange-border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--color-blue-dim);
+    color: var(--color-blue-400);
+    border: 0.5px solid var(--color-blue-border);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* ── Form control ── */
+  .form-control {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--radius-sm);
+    padding: 11px 13px;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-family: var(--font-sans);
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &:focus        { border-color: var(--color-orange); }
+    &::placeholder { color: var(--color-text-muted); }
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.6;
+  }
+
+  /* ── Table ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 460px;
+
+    th {
+      text-align: left;
+      padding: 8px 10px;
+      white-space: nowrap;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      border-bottom: 0.5px solid var(--color-border-base);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    td {
+      padding: 9px 10px;
+      border-bottom: 0.5px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td      { background-color: rgba(255, 255, 255, 0.02); }
+  }
+
+  /* ── Table wrapper (horizontal scroll) ── */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 140, 0, 0.30) rgba(10, 30, 53, 0.5);
+    margin-inline: -16px;
+    padding-inline: 16px;
+
+    &::-webkit-scrollbar        { height: 4px; }
+    &::-webkit-scrollbar-track  { background: rgba(10, 30, 53, 0.5); border-radius: 10px; }
+    &::-webkit-scrollbar-thumb  { background: rgba(255, 140, 0, 0.30); border-radius: 10px; }
+    &::-webkit-scrollbar-thumb:hover { background: rgba(255, 140, 0, 0.60); }
+
+    @media (width >= 900px) {
+      margin-inline: -18px;
+      padding-inline: 18px;
+    }
+  }
+
+  /* ── Session pill ── */
+  .session-pill {
+    background-color: var(--color-orange-dim);
+    border: 0.5px solid var(--color-orange-border);
+    color: var(--color-orange);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* ── Admin badge ── */
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background-color: var(--color-red-dim);
+    border: 0.5px solid rgba(232, 64, 64, 0.25);
+    color: var(--color-red);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-weight: 600;
+  }
+
+  /* ── Logout button ── */
+  .btn-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background-color: var(--color-red-dim);
+    border: 0.5px solid rgba(232, 64, 64, 0.25);
+    border-radius: var(--radius-sm);
+    color: var(--color-red);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.15s;
+
+    &:hover { background-color: rgba(232, 64, 64, 0.18); }
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 0.5px;
+    background-color: var(--color-border-base);
+    margin-block: 12px;
+  }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    padding: 20px;
+
+    &.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+  .modal-box {
+    background-color: var(--color-navy-soft);
+    border: 0.5px solid var(--color-border-medium);
+    border-radius: var(--radius-xl);
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+}
+
+/* ════════════════════════════════════════════════════════════
+   UTILITIES TAMBAHAN
+   ════════════════════════════════════════════════════════════ */
+@layer utilities {
+
+  /* Safe area iPhone */
+  .pb-safe  { padding-bottom: env(safe-area-inset-bottom); }
+
+  /* Half-pixel border */
+  .border-half   { border-width: 0.5px; }
+  .border-t-half { border-top-width: 0.5px; }
+  .border-b-half { border-bottom-width: 0.5px; }
+
+  /* Sidebar transition */
+  .sidebar-transition {
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Online dot pulse */
+  .animate-pulse-dot {
+    animation: var(--animate-pulse-dot);
+  }
+
+}
+
+/*
+ * ════════════════════════════════════════════════════════════
+ * CARA PAKAI SCROLLBAR DI KOMPONEN
+ * ════════════════════════════════════════════════════════════
+ *
+ * Sidebar nav:
+ *   <nav className="flex-1 overflow-y-auto scrollbar-thin border-t border-border-base">
+ *
+ * Halaman utama (page content):
+ *   <main className="flex-1 overflow-y-auto scrollbar-blue p-4 lg:p-7">
+ *
+ * Tabel:
+ *   <div className="table-wrap">
+ *     <table className="data-table"> ... </table>
+ *   </div>
+ *
+ * Dropdown / list panjang:
+ *   <ul className="max-h-60 overflow-y-auto scrollbar-thin">
+ *
+ * Muncul hanya saat hover:
+ *   <div className="overflow-y-auto scrollbar-autohide">
+ *
+ * Log / aktivitas (warna hijau):
+ *   <div className="overflow-y-auto scrollbar-green">
+ *
+ * Tersembunyi tapi scrollable:
+ *   <div className="overflow-y-auto scrollbar-none">
+ */

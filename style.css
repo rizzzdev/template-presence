@@ -25,6 +25,73 @@
   --bottomnav-h: 64px;
 }
 
+/* ════ SCROLLBAR CUSTOM — warna brand Presence ════ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,140,0,0.35) rgba(10,30,53,0.5);
+}
+*::-webkit-scrollbar        { width: 5px; height: 5px; }
+*::-webkit-scrollbar-track  { background: rgba(10,30,53,0.5); border-radius: 10px; }
+*::-webkit-scrollbar-thumb  { background: rgba(255,140,0,0.35); border-radius: 10px; border: 1px solid rgba(255,140,0,0.10); }
+*::-webkit-scrollbar-thumb:hover  { background: rgba(255,140,0,0.60); }
+*::-webkit-scrollbar-thumb:active { background: #ff8c00; }
+*::-webkit-scrollbar-corner { background: transparent; }
+
+/* Thin (3px) — sidebar nav */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,140,0,0.30) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar        { width: 3px; height: 3px; }
+.scrollbar-thin::-webkit-scrollbar-track  { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb  { background: rgba(255,140,0,0.30); border-radius: 10px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(255,140,0,0.55); }
+
+/* None — hide but scrollable */
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Auto-hide — hanya muncul saat hover */
+.scrollbar-autohide { scrollbar-width: none; }
+.scrollbar-autohide::-webkit-scrollbar        { width: 5px; height: 5px; }
+.scrollbar-autohide::-webkit-scrollbar-thumb  { background: transparent; border-radius: 10px; transition: background 0.2s; }
+.scrollbar-autohide:hover                     { scrollbar-width: thin; scrollbar-color: rgba(255,140,0,0.35) transparent; }
+.scrollbar-autohide:hover::-webkit-scrollbar-thumb       { background: rgba(255,140,0,0.35); }
+.scrollbar-autohide:hover::-webkit-scrollbar-thumb:hover { background: rgba(255,140,0,0.60); }
+
+/* Blue variant — page content */
+.scrollbar-blue {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(26,111,196,0.40) rgba(10,30,53,0.50);
+}
+.scrollbar-blue::-webkit-scrollbar        { width: 4px; height: 4px; }
+.scrollbar-blue::-webkit-scrollbar-track  { background: rgba(10,30,53,0.50); border-radius: 10px; }
+.scrollbar-blue::-webkit-scrollbar-thumb  { background: rgba(26,111,196,0.40); border-radius: 10px; }
+.scrollbar-blue::-webkit-scrollbar-thumb:hover { background: #1a6fc4; }
+
+/* Green variant — log/aktivitas */
+.scrollbar-green {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(45,184,122,0.40) rgba(10,30,53,0.50);
+}
+.scrollbar-green::-webkit-scrollbar        { width: 4px; height: 4px; }
+.scrollbar-green::-webkit-scrollbar-track  { background: rgba(10,30,53,0.50); border-radius: 10px; }
+.scrollbar-green::-webkit-scrollbar-thumb  { background: rgba(45,184,122,0.40); border-radius: 10px; }
+.scrollbar-green::-webkit-scrollbar-thumb:hover { background: #2db87a; }
+
+/* Horizontal — tabel overflow-x */
+.scrollbar-x {
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,140,0,0.30) transparent;
+}
+.scrollbar-x::-webkit-scrollbar        { height: 4px; }
+.scrollbar-x::-webkit-scrollbar-track  { background: rgba(10,30,53,0.50); border-radius: 10px; }
+.scrollbar-x::-webkit-scrollbar-thumb  { background: rgba(255,140,0,0.30); border-radius: 10px; }
+.scrollbar-x::-webkit-scrollbar-thumb:hover { background: rgba(255,140,0,0.60); }
+
+
+
 html { font-size: 14px; }
 body {
   font-family: 'Poppins', sans-serif;
@@ -92,7 +159,10 @@ body {
   flex: 1; padding: 4px 0;
   overflow-y: auto; border-top: 1px solid var(--border);
 }
-.sidebar-nav::-webkit-scrollbar { width: 0; }
+.sidebar-nav::-webkit-scrollbar        { width: 3px; }
+.sidebar-nav::-webkit-scrollbar-track  { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb  { background: rgba(255,140,0,0.2); border-radius: 10px; }
+.sidebar-nav::-webkit-scrollbar-thumb:hover { background: rgba(255,140,0,0.45); }
 .nav-group-label {
   padding: 10px 18px 4px; font-size: 9px; font-weight: 600;
   color: var(--text-3); letter-spacing: 1.2px; text-transform: uppercase;
@@ -160,8 +230,11 @@ body {
   padding-bottom: calc(var(--bottomnav-h) + 16px);
   overflow-y: auto;
 }
-.page-content::-webkit-scrollbar { width: 3px; }
-.page-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.page-content::-webkit-scrollbar        { width: 4px; height: 4px; }
+.page-content::-webkit-scrollbar-track  { background: rgba(10,30,53,0.5); border-radius: 10px; }
+.page-content::-webkit-scrollbar-thumb  { background: rgba(26,111,196,0.4); border-radius: 10px; }
+.page-content::-webkit-scrollbar-thumb:hover  { background: #1a6fc4; }
+.page-content::-webkit-scrollbar-thumb:active { background: #4fa3e8; }
 
 /* ════ BOTTOM NAV — mobile ════ */
 .bottom-nav {
